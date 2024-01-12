@@ -39,6 +39,7 @@ def similarity_matrix(adj, num_split):
     A.data[np.isinf(A.data)] = 0
     von_neumann = A + A.transpose()
 
+    alpha = 0.5
     D = sp.csr_matrix(np.sum(adj, axis=0))
     D[D == 0] = 1
     D.data = 1 / D.data
@@ -56,50 +57,14 @@ def similarity_matrix(adj, num_split):
     A.data[np.isinf(A.data)] = 0
     rwr = A + A.transpose()
 
-    rowsum = np.array(adj.sum(1))
-    d_inv_sqrt = np.power(rowsum, -1).flatten()
-    d_inv_sqrt[np.isinf(d_inv_sqrt)] = 0.
-    d_mat_inv_sqrt = sp.diags(d_inv_sqrt)
-    DA = d_mat_inv_sqrt.dot(adj)
-    resource_allocate = adj.dot(DA).tocoo()
+    # similarities = [adamic_adar, rwr, adj + sp.eye(adj.shape[0])]
+    similarities = [common_neighbor, adamic_adar, rwr, von_neumann, adj + sp.eye(adj.shape[0])]
 
-    rowsum = np.array(adj.sum(1))
-    deg_row = np.tile(rowsum, (1,adj.shape[0]))
-    deg_row = sp.coo_matrix(deg_row)
-    hdi = adj.dot(adj)
-    X = hdi.astype(bool).astype(int)
-    deg_row = deg_row.multiply(X)
-    deg_row = mymaximum(deg_row, deg_row.T)
-    hdi = hdi/deg_row
-    whereAreNan = np.isnan(hdi)
-    whereAreInf = np.isinf(hdi)
-    hdi[whereAreNan] = 0
-    hdi[whereAreInf] = 0
-    hdi = sp.coo_matrix(hdi)
-
-    hpi = adj.dot(adj)
-    X = hpi.astype(bool).astype(int)
-    deg_row = deg_row.multiply(X)
-    deg_row = myminimum(deg_row, deg_row.T)
-    hpi = hpi/deg_row
-    whereAreNan = np.isnan(hpi)
-    whereAreInf = np.isinf(hpi)
-    hpi[whereAreNan] = 0
-    hpi[whereAreInf] = 0
-    hpi = sp.coo_matrix(hpi)
-
-    similarities = [adamic_adar, common_neighbor, von_neumann, rwr, adj + sp.eye(adj.shape[0]), resource_allocate, hdi, hpi]
-
+    if FLAGS.sim_idx != '0':
+        sim_idx = FLAGS.sim_idx.split(',')
+        sim_idx = [int(idx) - 1 for idx in sim_idx]
+        similarities = [similarities[idx] for idx in sim_idx]
+        
     similarities = [[s[:num_split, :num_split] for s in similarities], [s[num_split:, num_split:] for s in similarities]]
 
     return similarities
-
-def mymaximum (A, B):
-    BisBigger = A-B
-    BisBigger.data = np.where(BisBigger.data <= 0, 1, 0)
-    return A - A.multiply(BisBigger) + B.multiply(BisBigger)
-
-def myminimum(A,B):
-    BisBigger = A-B
-    BisBigger.data = np.where(BisBigger.data >= 0, 1, 0)
-    return A - A.multiply(BisBigger) + B.multiply(BisBigger)
