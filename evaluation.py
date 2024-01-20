@@ -38,7 +38,7 @@ def LinkPrediction(embedding_look_up, edgelist_bipartite, testing_node):
         X_train.append(feature_vector)
         y_train.append(1)
     
-    train_neg_edges = np.append(random.choices([[x] for x in np.unique(train_pos_edges[:, 0])], k=len(train_pos_edges)), random.choices([[x] for x in np.unique(train_pos_edges[:, 1])], k=len(train_pos_edges)), 1)
+    train_neg_edges = np.append(random.choices([[x] for x in np.unique(edgelist_bipartite[:, 0])], k=len(train_pos_edges)), random.choices([[x] for x in np.unique(edgelist_bipartite[:, 1])], k=len(train_pos_edges)), 1)
     for edge in train_neg_edges:
         node_u_emb = embedding_look_up[edge[0]]
         node_v_emb = embedding_look_up[edge[1]]
