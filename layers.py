@@ -121,9 +121,9 @@ class InnerProductDecoder(Layer):
     def _call(self, inputs):
         inputs = tf.nn.dropout(inputs, 1-self.dropout)
         inputs = tf.split(inputs, self.num_graphs)
-        outputs1 = [None for i in range(self.num_graphs)]
-        outputs2 = [None for i in range(self.num_graphs)]
-        for sim_idx in range(self.num_graphs):
+        outputs1 = [None for i in range(self.num_graphs-1)]
+        outputs2 = [None for i in range(self.num_graphs-1)]
+        for sim_idx in range(self.num_graphs - 1):
             with tf.device(devices[sim_idx % len(devices)]):
                 input1 = inputs[sim_idx][:self.num_split, :]
                 input2 = inputs[sim_idx][self.num_split:, :]
@@ -131,4 +131,6 @@ class InnerProductDecoder(Layer):
                 outputs2[sim_idx] = tf.matmul(input2, tf.transpose(input2))
         outputs1 = self.act(tf.concat(outputs1, 0))
         outputs2 = self.act(tf.concat(outputs2, 0))
-        return [outputs1, outputs2]
+        input3 = inputs[-1]
+        outputs3 = tf.matmul(input3, tf.transpose(input3))
+        return [outputs1, outputs2, outputs3]

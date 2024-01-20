@@ -14,13 +14,14 @@ def sample_mask(idx, l):
     return np.array(mask, dtype=np.bool)
 
 
-def construct_feed_dict(adj, similarities1, similarities2, features, placeholders):
+def construct_feed_dict(adj, similarities1, similarities2, adj_label, features, placeholders):
     # construct feed dictionary
     feed_dict = dict()
     feed_dict.update({placeholders['features']: features})
     feed_dict.update({placeholders['adj']: adj})
     feed_dict.update({placeholders['similarities1']: similarities1})
     feed_dict.update({placeholders['similarities2']: similarities2})
+    feed_dict.update({placeholders['adj_label']: adj_label})
     feed_dict.update({placeholders['dropout']: FLAGS.dropout})
     return feed_dict
 

@@ -4,6 +4,7 @@ from scipy.linalg import eig
 import logging
 import os
 import tensorflow.compat.v1 as tf
+from sklearn.decomposition import PCA
 
 flags = tf.app.flags
 FLAGS = flags.FLAGS
@@ -161,3 +162,6 @@ def consensus(embeddings):
     gcca.fit(*embeddings)
     embeddings = gcca.transform(*embeddings)
     return np.mean(embeddings, axis=0)
+    """ pca = PCA(n_components=FLAGS.hidden2)
+    embedding = pca.fit_transform(np.hstack(embeddings))
+    return embedding """

@@ -29,20 +29,21 @@ flags.DEFINE_integer('hidden2', 32, 'Number of units in hidden layer 2.')
 flags.DEFINE_float('dropout', 0, 'Dropout rate (1 - keep probability).')
 
 flags.DEFINE_string('dataset', 'DGI', 'Dataset string.')
-flags.DEFINE_string('sim_idx', '0', 'To use all similarities(0) or to use one of them(index of similarity).')
+# flags.DEFINE_string('sim_idx', '0', 'To use all similarities(0) or to use one of them(index of similarity).')
+flags.DEFINE_integer('testing_node', '0', 'The node to test.')
 
 dataset_str = FLAGS.dataset
-adj, num_split, features, adj_no_bipartite, edgelist_bipartite, testing_nodes = load_data(dataset_str)
+adj, num_split, features, adj_train, edgelist_bipartite = load_data(dataset_str)
 
 features = preprocess_features(features)
 
 # Training and Evaluation
-adj_norm = preprocess_graph(adj_no_bipartite)
-similarities = similarity_matrix(adj_no_bipartite, num_split)
+adj_norm = preprocess_graph(adj_train)
+similarities = similarity_matrix(adj_train, num_split)
 
 emb = train(adj_norm, similarities, features)
 if len(emb) > 1:
     emb = consensus(emb)
 else:
     emb = emb[0]
-LinkPrediction(emb, edgelist_bipartite, testing_nodes)
+LinkPrediction(emb, edgelist_bipartite, FLAGS.testing_node)
