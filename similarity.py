@@ -58,12 +58,6 @@ def similarity_matrix(adj, num_split):
     rwr = A + A.transpose()
 
     similarities = [adamic_adar, rwr]
-    # similarities = [common_neighbor, adamic_adar, rwr, von_neumann, adj + sp.eye(adj.shape[0])]
-
-    """ if FLAGS.sim_idx != '0':
-        sim_idx = FLAGS.sim_idx.split(',')
-        sim_idx = [int(idx) - 1 for idx in sim_idx]
-        similarities = [similarities[idx] for idx in sim_idx] """
         
     similarities = [[s[:num_split, :num_split] for s in similarities], [s[num_split:, num_split:] for s in similarities]]
     similarities.append(adj + sp.eye(adj.shape[0]))

@@ -162,6 +162,3 @@ def consensus(embeddings):
     gcca.fit(*embeddings)
     embeddings = gcca.transform(*embeddings)
     return np.mean(embeddings, axis=0)
-    """ pca = PCA(n_components=FLAGS.hidden2)
-    embedding = pca.fit_transform(np.hstack(embeddings))
-    return embedding """
